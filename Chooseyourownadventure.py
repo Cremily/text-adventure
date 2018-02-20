@@ -83,6 +83,14 @@ class RoomClass:
         GAME_ON = False
     def take_input(self):
         player_in = input("What would you like to do?")
+        input_list = []
+        player_in = player_in.split(" ")
+        for x in player_in:
+            input_list.append(x.lower())
+        if condition:
+            pass
+        else:
+            pass
         
 CurrRoom = RoomClass("ERROR")   
 EmptyCave = RoomClass("Empty Cave")
@@ -98,3 +106,5 @@ NextRoom.room_def("It's another empty cave!... Except for that key.",
                   {"south":["South",EmptyCave]},
                   {"key":["Key","It's a key. Probably to use on that door, ey?"]},
                   {})
+CurrRoom = EmptyCave
+CurrRoom.take_input()
