@@ -98,4 +98,3 @@ NextRoom.room_def("It's another empty cave!... Except for that key.",
                   {"south":["South",EmptyCave]},
                   {"key":["Key","It's a key. Probably to use on that door, ey?"]},
                   {})
-CurrRoom = EmptyCave
