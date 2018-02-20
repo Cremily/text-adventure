@@ -78,20 +78,41 @@ class RoomClass:
         else:
             print("There's no %s in this room!" % (item))
             return False
+    def change_room(self,direction):
+        if direction in self.direc:
+            self.direc[direction][1].read_room()
+            return self.direc[direction][1]
+        else:
+            print("You can't go %s! Try a direction in this room!" % direction)
+            return self
+    def take_words(self):
+        while True:
+            player_in = input("What would you like to do? ")
+            words = []
+            player_in = player_in.split(" ")
+            for x in player_in:
+                words.append(x.lower())
+            if words[0] == "exit" or words[0] == "quit":
+                break
+            if len(words) == 1:
+                if words[0] == "room" or (words[0] == "look"):
+                    self.read_room()
+                if words[0] == "go" or words[0] == "move":
+                    print("Go where? Try again.")
+                    continue
+                if words[0] == ("take" or "grab"): 
+                    print("What would you like to take? Try again.")
+                    continue
+            if words[0] == "go" or words[0] == "move":
+                    self = self.change_room(words[len(words)-1])
+            if words[0] == ("take" or "grab"):
+                pass
+
+                    
     def end_game(self):
         print("You win the game! You are amazing!")
         GAME_ON = False
-    def take_input(self):
-        player_in = input("What would you like to do?")
-        input_list = []
-        player_in = player_in.split(" ")
-        for x in player_in:
-            input_list.append(x.lower())
-        if condition:
-            pass
-        else:
-            pass
-        
+
 CurrRoom = RoomClass("ERROR")   
 EmptyCave = RoomClass("Empty Cave")
 NextRoom = RoomClass("Another Cave")
@@ -107,4 +128,5 @@ NextRoom.room_def("It's another empty cave!... Except for that key.",
                   {"key":["Key","It's a key. Probably to use on that door, ey?"]},
                   {})
 CurrRoom = EmptyCave
-CurrRoom.take_input()
+CurrRoom.read_room()
+CurrRoom.take_words()
