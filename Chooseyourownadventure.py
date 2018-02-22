@@ -88,25 +88,41 @@ class RoomClass:
     def take_words(self):
         while True:
             player_in = input("What would you like to do? ")
+            verb = ""
+            phrase = ""
             words = []
+            unclean_input = []
             player_in = player_in.split(" ")
             for x in player_in:
-                words.append(x.lower())
-            if words[0] == "exit" or words[0] == "quit":
+                unclean_input.append(x.lower())
+            for word in unclean_input:
+                print(word)
+                if word != "the" and word != "to" and word != "on":
+                    words.append(word)
+            verb = words[0]
+            del(words[0])
+            for length,word in enumerate(words):
+                if length != len(words) - 1:
+                    phrase += word + " "
+                else:
+                    phrase += word
+            if verb == "exit" or verb == "quit":
                 break
-            if len(words) == 1:
-                if words[0] == "room" or (words[0] == "look"):
+            if phrase == "":
+                if verb == "room" or (verb == "look"):
                     self.read_room()
-                if words[0] == "go" or words[0] == "move":
+                if verb == "go" or verb == "move":
                     print("Go where? Try again.")
                     continue
-                if words[0] == ("take" or "grab"): 
+                if verb == ("take" or "grab"): 
                     print("What would you like to take? Try again.")
                     continue
-            if words[0] == "go" or words[0] == "move":
-                    self = self.change_room(words[len(words)-1])
-            if words[0] == ("take" or "grab"):
-                pass
+                if verb == ("inventory" or "inv"):
+                    read_inventory()
+            if verb == "go" or verb == "move":
+                self = self.change_room(phrase)
+            if verb == ("take" or "grab"):
+                self.take_item(phrase)
 
                     
     def end_game(self):
