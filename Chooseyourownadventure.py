@@ -1,5 +1,6 @@
-GAME_ON = True
+global PLAYER_INV
 PLAYER_INV = {}
+GAME_ON = True
 from colorama import init
 init()
 from colorama import Fore,Back,Style
@@ -7,14 +8,14 @@ def read_inventory():
     if len(PLAYER_INV) == 0:
         print("You aren't carrying anything!")
         return False
-    inv_string = "You have a "
+    inv_string = "You have the "
     for count,key in enumerate(PLAYER_INV):
         if len(PLAYER_INV) == 1:
             inv_string += PLAYER_INV[key][0] + "."
         elif count <(len(PLAYER_INV)-1):
-            inv_string += PLAYER_INV[key][0] + ","
+            inv_string += PLAYER_INV[key][0] + ", "
         else:
-            inv_string += "and " + PLAYER_INV[key][0] + "."
+            inv_string += "and the " + PLAYER_INV[key][0] + "."
     print(inv_string)
     return True
 class RoomClass:
@@ -53,8 +54,10 @@ class RoomClass:
                 item_string += "and a " + self.item[key][0] + "."
         print(Fore.RED + self.name + Style.RESET_ALL)
         print(self.desc)
-        print(direc_string)
-        print(item_string)
+        if direc_string != "You can go ":
+            print(direc_string)
+        if item_string != "There is a ":
+            print(item_string)
         for count,key in enumerate(self.interact):
             print(self.interact[key][0])
     def read_object(self,obj):
@@ -86,8 +89,22 @@ class RoomClass:
         else:
             print("You can't go %s! Try a direction in this room!" % direction)
             return self
+    def use_item(self,item,room):
+        if item in PLAYER_INV:
+            try:
+                if item == self.interact[room][2]:
+                    print("You used the %s on the %s" % (item,room))
+                    print(self.interact[room][3])
+                    for command in self.interact[room][4]:
+                        exec(command)
+                else:
+                    print("I don't know how to use %s on %s" % (item,room))
+            except Exception as e:
+                print(e)
+        else:
+            print("You don't have an %s" % (item))
     def take_words(self):
-        while True:
+        while GAME_ON == True:
             player_in = input("What would you like to do? ")
             verb = ""
             phrase = ""
@@ -107,11 +124,12 @@ class RoomClass:
                 else:
                     phrase += word
             if verb == "exit" or verb == "quit":
+                print('Goodbye!')
                 break
-            print([verb,phrase])
             if phrase == '':
                 if verb == "room" or (verb == "look"):
                     self.read_room()
+                    continue
                 if verb == "go" or verb == "move":
                     print("Go where? Try again.")
                     continue
@@ -125,25 +143,38 @@ class RoomClass:
             if verb == "take" or verb == "grab":
                 self.take_item(phrase)
             if verb == "look":
-                self.read_object(phrase)                            
+                self.read_object(phrase)
+            if verb == "use":
+                nphrase = phrase.split(" on ")
+                if str(nphrase) == phrase:
+                    nphrase = nphrase.split(" with ")
+                self.use_item(nphrase[0],nphrase[1])
+        else: 
+            print("You are amazing! Well Done!")                          
     def end_game(self):
-        print("You win the game! You are amazing!")
+        global GAME_ON
         GAME_ON = False
+        return
 
 CurrRoom = RoomClass("ERROR")   
 EmptyCave = RoomClass("Empty Cave")
 NextRoom = RoomClass("Another Cave")
-
+global Door_Key
+Door_Key = {"stone key":["Stone Key","It's a stone key. Looks like it's for the door."]}
 EmptyCave.room_def("It's an empty cave!... Except for those twigs. And that door.",
                       {"north":["North",NextRoom]},
                       {"small twig": ["Small Twig","It's small. Twiggy."],
                       "big twig": ["Big Twig","It's big. More Twiggy."],
                       "medium twig":["Medium Twig","It's medium. Somewhat Twiggy."]},
-                      {"door":["There is a locked Door.","Big. Stone. Scawwy.","key",EmptyCave.end_game]})
+                      {"door":["There is a locked Door.","Big. Stone. Scawwy.","stone key","self.end_game()"],
+                       "chest":["There is a locked Chest.","Same stone as the door.", "key","The chest reveals a stone key! You discard the chest.",["self.add_item(Door_Key)","""del self.interact["chest"]""","""del PLAYER_INV[key]"""]]})
 NextRoom.room_def("It's another empty cave!... Except for that key.",
                   {"south":["South",EmptyCave]},
-                  {"key":["Key","It's a key. Probably to use on that door, ey?"]},
+                  {"key":["Key","It's a key. Probably to use on that chest, ey?"]},
                   {})
+CurrRoom = NextRoom
+CurrRoom.take_item("key")
 CurrRoom = EmptyCave
+print(PLAYER_INV)
 CurrRoom.read_room()
 CurrRoom.take_words()
