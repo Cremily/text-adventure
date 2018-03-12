@@ -63,6 +63,7 @@ class RoomClass:
             return True
         if obj in PLAYER_INV:
             print(PLAYER_INV[obj][1])
+            return True
         elif obj in self.interact:
             print(self.interact[obj][1])
             return True
@@ -96,8 +97,7 @@ class RoomClass:
             for x in player_in:
                 unclean_input.append(x.lower())
             for word in unclean_input:
-                print(word)
-                if word != "the" and word != "to" and word != "on":
+                if word != "the" and word != "to" and word != "at":
                     words.append(word)
             verb = words[0]
             del(words[0])
@@ -108,7 +108,8 @@ class RoomClass:
                     phrase += word
             if verb == "exit" or verb == "quit":
                 break
-            if phrase == "":
+            print([verb,phrase])
+            if phrase == '':
                 if verb == "room" or (verb == "look"):
                     self.read_room()
                 if verb == "go" or verb == "move":
@@ -117,14 +118,14 @@ class RoomClass:
                 if verb == ("take" or "grab"): 
                     print("What would you like to take? Try again.")
                     continue
-                if verb == ("inventory" or "inv"):
+                if verb == "inventory" or verb == "inv":
                     read_inventory()
             if verb == "go" or verb == "move":
                 self = self.change_room(phrase)
-            if verb == ("take" or "grab"):
+            if verb == "take" or verb == "grab":
                 self.take_item(phrase)
-
-                    
+            if verb == "look":
+                self.read_object(phrase)                            
     def end_game(self):
         print("You win the game! You are amazing!")
         GAME_ON = False
