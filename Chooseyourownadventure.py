@@ -18,6 +18,10 @@ def read_inventory():
             inv_string += "and the " + PLAYER_INV[key][0] + "."
     print(inv_string)
     return True
+def remove_item(name):
+    if name in PLAYER_INV:
+        del PLAYER_INV[name]
+
 class RoomClass:
     """This is a room."""
     def __init__(self,name):
@@ -146,8 +150,11 @@ class RoomClass:
                 self.read_object(phrase)
             if verb == "use":
                 nphrase = phrase.split(" on ")
-                if str(nphrase) == phrase:
-                    nphrase = nphrase.split(" with ")
+                test_phrase = ""
+                for x in nphrase:
+                    test_phrase += x
+                if test_phrase == phrase:
+                    nphrase = phrase.split(" with ")
                 self.use_item(nphrase[0],nphrase[1])
         else: 
             print("You are amazing! Well Done!")                          
@@ -167,7 +174,7 @@ EmptyCave.room_def("It's an empty cave!... Except for those twigs. And that door
                       "big twig": ["Big Twig","It's big. More Twiggy."],
                       "medium twig":["Medium Twig","It's medium. Somewhat Twiggy."]},
                       {"door":["There is a locked Door.","Big. Stone. Scawwy.","stone key","self.end_game()"],
-                       "chest":["There is a locked Chest.","Same stone as the door.", "key","The chest reveals a stone key! You discard the chest.",["self.add_item(Door_Key)","""del self.interact["chest"]""","""del PLAYER_INV[key]"""]]})
+                       "chest":["There is a locked Chest.","Same stone as the door.", "key","The chest reveals a stone key! You discard the chest.",["self.add_item(Door_Key)","""del self.interact["chest"]""","""remove_item('key')"""]]})
 NextRoom.room_def("It's another empty cave!... Except for that key.",
                   {"south":["South",EmptyCave]},
                   {"key":["Key","It's a key. Probably to use on that chest, ey?"]},
