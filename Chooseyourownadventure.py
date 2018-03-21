@@ -163,6 +163,25 @@ class RoomClass:
         GAME_ON = False
         return
 
+class Object:
+    def __init__(self,name,description):
+        self.name = name
+        self.description = description
+class Key(Object):
+    def __init__(self,name,description):
+        Object.__init__(self,name,description)
+class Chest(Object):
+    def __init__(self,name,description,keys,contents,):
+        Object.__init__(self,name,description)
+        self.keys = keys
+        self.content = contents
+        
+    def unlock_chest(self,room,key):
+        if key in self.key:
+            room.
+            
+        
+
 CurrRoom = RoomClass("ERROR")   
 EmptyCave = RoomClass("Empty Cave")
 NextRoom = RoomClass("Another Cave")
@@ -174,7 +193,7 @@ EmptyCave.room_def("It's an empty cave!... Except for those twigs. And that door
                       "big twig": ["Big Twig","It's big. More Twiggy."],
                       "medium twig":["Medium Twig","It's medium. Somewhat Twiggy."]},
                       {"door":["There is a locked Door.","Big. Stone. Scawwy.","stone key","self.end_game()"],
-                       "chest":["There is a locked Chest.","Same stone as the door.", "key","The chest reveals a stone key! You discard the chest.",["self.add_item(Door_Key)","""del self.interact["chest"]""","""remove_item('key')"""]]})
+                       "chest":["There is a locked Chest.","Same stone as the door.", "key","The chest reveals a stone key! You discard the chest.",[self.add_item(Door_Key])]})
 NextRoom.room_def("It's another empty cave!... Except for that key.",
                   {"south":["South",EmptyCave]},
                   {"key":["Key","It's a key. Probably to use on that chest, ey?"]},
