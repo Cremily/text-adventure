@@ -22,14 +22,17 @@ def remove_item(name):
     if name in PLAYER_INV:
         del PLAYER_INV[name]
 
-class RoomClass:
+class Room:
     """This is a room."""
     def __init__(self,name):
         self.name = name
     def room_def(self,description,directions,items,interacts):
         self.desc = description
         self.direc = directions
-        self.item = items
+        item = {}
+        for x in items:
+            item.update({x.name:x})
+        self.item = item
         self.interact = interacts
     def add_item(self,item_pair):
         self.item.update(item_pair)
@@ -98,7 +101,13 @@ class RoomClass:
                 if item != del_item.name:
                     new_item_list.append(item)
             self.item = new_item_list 
-
+    def delete_interact(self,del_inter):
+        if del_inter.name in self.interact:
+            new_inter_list = []
+            for interact in self.interact:
+                if interact != del_inter.name:
+                    new_inter_list.append(interact)
+            self.inter = new_inter_list
     def take_words(self):
         while GAME_ON == True:
             player_in = input("What would you like to do? ")
@@ -154,8 +163,13 @@ class RoomClass:
         global GAME_ON
         GAME_ON = False
         return
-    def use_item(self,):
-        pass
+    def use_item(self,first,second):
+        if isinstance(second,Chest):
+            if isinstance(first,Key):
+                second.unlock_chest(self,first)
+        
+                
+        
 class Item:
     def __init__(self,name,description):
         self.name = name
@@ -169,22 +183,19 @@ class Chest(Item):
         self.key = keys
         self.content = contents
     def unlock_chest(self,room,key):
-        for unlock_keys in self.key:
-            print("1")
-            if key.name == unlock_keys.name:
-                for item in self.content:
-                    print(item)
-                    room.add_item({item.name:item})
-                pass
-                break
-            
-
+            for unlock_keys in self.key:
+                if key.name == unlock_keys.name:
+                    for item in self.content:
+                        print(item)
+                        room.add_item({item.name:item})
+                    break
+            else:
+                print("That key doesn't open this chest!")
+SmallKey = Key("Useless key","Opens nothing.")
 BigKey = Key("Stone Key","Opens the big chest.")
 AnItem = Item("Test Item","Comes from the test chest!")          
 TestChest = Chest("Test Chest","This is a test",[BigKey],[AnItem])
-TestRoom = RoomClass("Testing Room")
-NextRoom = RoomClass("Testing Room 2")
-TestRoom.room_def("This is a room!",{'North':NextRoom},{BigKey.name:BigKey,AnItem.name:AnItem},[TestChest])
-TestRoom.read_room()
-TestRoom.delete_item(AnItem)
-TestRoom.read_room()
+TestRoom = Room("Testing Room")
+NextRoom = Room("Testing Room 2")
+TestRoom.room_def("This is a room!",{'North':NextRoom},[BigKey],[TestChest])
+TestChest.unlock_chest(TestRoom,SmallKey)
