@@ -41,30 +41,28 @@ class RoomClass:
         direc_string = "You can go "
         for count,key in enumerate(self.direc):
             if len(self.direc) == 1:
-                direc_string += self.direc[key][0] + "."
+                direc_string += key + "."
             elif count <(len(self.direc)-1):
-                direc_string += self.direc[key][0] + ", "
+                direc_string += key + ", "
             else:
-                direc_string += "and " + self.direc[key][0] + "."
+                direc_string += "and " + key + "."
         item_string = "There is a "
         for count,key in enumerate(self.item):
             if len(self.item) == 1:
-                item_string += self.item[key][0] + "."
+                item_string += key + "."
             elif count < (len(self.item) -2):
-                item_string += self.item[key][0] + ", a "
+                item_string += key + ", a "
             elif count < (len(self.item)-1):
-                item_string += self.item[key][0] + ", "
+                item_string += key + ", "
             else:
-                item_string += "and a " + self.item[key][0] + "."
+                item_string += "and a " + key + "."
         print(Fore.RED + self.name + Style.RESET_ALL)
         print(self.desc)
         if direc_string != "You can go ":
             print(direc_string)
         if item_string != "There is a ":
             print(item_string)
-        for count,key in enumerate(self.interact):
-            print(self.interact[key][0])
-    def read_object(self,obj):
+    def read_item(self,obj):
         if obj in self.item:
             print(self.item[obj][1])
             return True
@@ -93,20 +91,14 @@ class RoomClass:
         else:
             print("You can't go %s! Try a direction in this room!" % direction)
             return self
-    def use_item(self,item,room):
-        if item in PLAYER_INV:
-            try:
-                if item == self.interact[room][2]:
-                    print("You used the %s on the %s" % (item,room))
-                    print(self.interact[room][3])
-                    for command in self.interact[room][4]:
-                        exec(command)
-                else:
-                    print("I don't know how to use %s on %s" % (item,room))
-            except Exception as e:
-                print(e)
-        else:
-            print("You don't have an %s" % (item))
+    def delete_item(self,del_item):
+        if del_item.name in self.item:
+            new_item_list = []
+            for item in self.item:
+                if item != del_item.name:
+                    new_item_list.append(item)
+            self.item = new_item_list 
+
     def take_words(self):
         while GAME_ON == True:
             player_in = input("What would you like to do? ")
@@ -147,7 +139,7 @@ class RoomClass:
             if verb == "take" or verb == "grab":
                 self.take_item(phrase)
             if verb == "look":
-                self.read_object(phrase)
+                self.read_Item(phrase)
             if verb == "use":
                 nphrase = phrase.split(" on ")
                 test_phrase = ""
@@ -162,45 +154,37 @@ class RoomClass:
         global GAME_ON
         GAME_ON = False
         return
-
-class Object:
+    def use_item(self,):
+        pass
+class Item:
     def __init__(self,name,description):
         self.name = name
         self.description = description
-class Key(Object):
+class Key(Item):
     def __init__(self,name,description):
-        Object.__init__(self,name,description)
-class Chest(Object):
-    def __init__(self,name,description,keys,contents,):
-        Object.__init__(self,name,description)
-        self.keys = keys
+        Item.__init__(self,name,description)
+class Chest(Item):
+    def __init__(self,name,description,keys,contents):
+        Item.__init__(self,name,description)
+        self.key = keys
         self.content = contents
-        
     def unlock_chest(self,room,key):
-        if key in self.key:
-            room.
+        for unlock_keys in self.key:
+            print("1")
+            if key.name == unlock_keys.name:
+                for item in self.content:
+                    print(item)
+                    room.add_item({item.name:item})
+                pass
+                break
             
-        
 
-CurrRoom = RoomClass("ERROR")   
-EmptyCave = RoomClass("Empty Cave")
-NextRoom = RoomClass("Another Cave")
-global Door_Key
-Door_Key = {"stone key":["Stone Key","It's a stone key. Looks like it's for the door."]}
-EmptyCave.room_def("It's an empty cave!... Except for those twigs. And that door.",
-                      {"north":["North",NextRoom]},
-                      {"small twig": ["Small Twig","It's small. Twiggy."],
-                      "big twig": ["Big Twig","It's big. More Twiggy."],
-                      "medium twig":["Medium Twig","It's medium. Somewhat Twiggy."]},
-                      {"door":["There is a locked Door.","Big. Stone. Scawwy.","stone key","self.end_game()"],
-                       "chest":["There is a locked Chest.","Same stone as the door.", "key","The chest reveals a stone key! You discard the chest.",[self.add_item(Door_Key])]})
-NextRoom.room_def("It's another empty cave!... Except for that key.",
-                  {"south":["South",EmptyCave]},
-                  {"key":["Key","It's a key. Probably to use on that chest, ey?"]},
-                  {})
-CurrRoom = NextRoom
-CurrRoom.take_item("key")
-CurrRoom = EmptyCave
-print(PLAYER_INV)
-CurrRoom.read_room()
-CurrRoom.take_words()
+BigKey = Key("Stone Key","Opens the big chest.")
+AnItem = Item("Test Item","Comes from the test chest!")          
+TestChest = Chest("Test Chest","This is a test",[BigKey],[AnItem])
+TestRoom = RoomClass("Testing Room")
+NextRoom = RoomClass("Testing Room 2")
+TestRoom.room_def("This is a room!",{'North':NextRoom},{BigKey.name:BigKey,AnItem.name:AnItem},[TestChest])
+TestRoom.read_room()
+TestRoom.delete_item(AnItem)
+TestRoom.read_room()
