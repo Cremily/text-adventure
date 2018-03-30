@@ -29,18 +29,16 @@ class Room:
     def room_def(self,description,directions,items,interacts):
         self.desc = description
         self.direc = directions
-        item = {}
-        for x in items:
-            item.update({x.name:x})
-        self.item = item
+        self.item = items
         self.interact = interacts
     def add_item(self,item_pair):
-        self.item.update(item_pair)
+        self.item.append(item_pair)
     def add_direc(self,direc_pair):
         self.direc.update(direc_pair)
     def add_interacts(self,inter_pair):
         self.interact.update(inter_pair)
     def read_room(self):
+
         direc_string = "You can go "
         for count,key in enumerate(self.direc):
             if len(self.direc) == 1:
@@ -49,22 +47,39 @@ class Room:
                 direc_string += key + ", "
             else:
                 direc_string += "and " + key + "."
+
         item_string = "There is a "
         for count,key in enumerate(self.item):
             if len(self.item) == 1:
-                item_string += key + "."
+                item_string += key.name + "."
             elif count < (len(self.item) -2):
-                item_string += key + ", a "
+                item_string += key.name + ", a "
             elif count < (len(self.item)-1):
-                item_string += key + ", "
+                item_string += key.name + ", "
             else:
-                item_string += "and a " + key + "."
+                item_string += "and a " + key.name + "."
+
+        inter_string = "You can see a "
+        for count,key in enumerate(self.interact):
+            if len(self.interact) == 1:
+                inter_string += key.name + "."
+            elif count <(len(self.item)-2):
+                inter_string += key.name + ", a "
+            elif count < (len(self.item)-1):
+                item_string += key.name + ", "
+            else:
+                item_string += "and a " + key.name + "."
+
         print(Fore.RED + self.name + Style.RESET_ALL)
         print(self.desc)
         if direc_string != "You can go ":
             print(direc_string)
         if item_string != "There is a ":
             print(item_string)
+        if inter_string != "You can see a ":
+            print(inter_string)
+       
+        
     def read_item(self,obj):
         if obj in self.item:
             print(self.item[obj][1])
@@ -164,10 +179,31 @@ class Room:
         GAME_ON = False
         return
     def use_item(self,first,second):
-        if isinstance(second,Chest):
-            if isinstance(first,Key):
-                second.unlock_chest(self,first)
+        inter_obj = ""
+        item_obj = ""
+        for inter in self.interact:
+            print(inter.name.lower(),second)
+            if inter.name.lower() == second:
+                inter_obj = inter
+        if inter_obj == "":
+            print("I don't see a %s in this room!" % (second))
+            return
+        for item in PLAYER_INV:
+            if item.name.lower() == first:
+                item_obj = item
+        for item in self.item:
+            print(item.name.lower(),first)
+            if item.name.lower() == first:
+                item_obj = item
+        if item_obj == "":
+            print("I don't see a %s to use!" % (first))
+            return
+        if isinstance(inter_obj,Chest):
+            if isinstance(item_obj,Key):
+                inter_obj.unlock_chest(self,item_obj)
         
+        
+
                 
         
 class Item:
@@ -187,15 +223,16 @@ class Chest(Item):
                 if key.name == unlock_keys.name:
                     for item in self.content:
                         print(item)
-                        room.add_item({item.name:item})
+                        room.add_item(item)
                     break
             else:
                 print("That key doesn't open this chest!")
 SmallKey = Key("Useless key","Opens nothing.")
 BigKey = Key("Stone Key","Opens the big chest.")
 AnItem = Item("Test Item","Comes from the test chest!")          
-TestChest = Chest("Test Chest","This is a test",[BigKey],[AnItem])
+TestChest = Chest("Chest","This is a test",[BigKey],[AnItem])
 TestRoom = Room("Testing Room")
 NextRoom = Room("Testing Room 2")
 TestRoom.room_def("This is a room!",{'North':NextRoom},[BigKey],[TestChest])
-TestChest.unlock_chest(TestRoom,SmallKey)
+TestRoom.read_room()
+TestRoom.take_words()
