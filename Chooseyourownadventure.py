@@ -25,11 +25,12 @@ class Room:
     """This is a room."""
     def __init__(self,name):
         self.name = name
-    def room_def(self,description,directions,items,interacts):
+    def room_def(self,description,directions,items,interacts,look_desc):
         self.desc = description
         self.direc = directions
         self.item = items
         self.interact = interacts
+        self.look = look_desc
     def add_item(self,item_pair):
         self.item.append(item_pair)
     def add_direc(self,direc_pair):
@@ -77,7 +78,7 @@ class Room:
             print(item_string)
         if inter_string != "You can see a ":
             print(inter_string) 
-    def read_item(self,obj):
+    def read_obj(self,obj):
         for item in self.item:
             if obj == item.name.lower():
                 print(item.description)
@@ -90,8 +91,13 @@ class Room:
             if obj == inter.name.lower():
                 print(inter.description)
                 return 
+        for direc in self.direc:
+            print(direc.lower())
+            if obj == direc.lower():
+                print(self.direc[direc].look)
+                return
         else:
-            print("What are you looking at? There's no %s" % (obj))
+            print("What are you looking at? There's no %s!" % (obj))
             return False
     def take_item(self,item):
         if item in self.item:
@@ -166,7 +172,7 @@ class Room:
                 self.read_room()
                 continue
             if verb == "look":
-                self.read_item(phrase)
+                self.read_obj(phrase)
             if verb == "use":
                 nphrase = phrase.split(" on ")
                 test_phrase = ""
@@ -235,6 +241,7 @@ AnItem = Item("Test Item","Comes from the test chest!")
 TestChest = Chest("Chest","This is a test",[BigKey],[AnItem],"The chest bursts open, revealing a %s" % (AnItem.name))
 TestRoom = Room("Testing Room")
 NextRoom = Room("Testing Room 2")
-TestRoom.room_def("This is a room!",{'North':NextRoom},[BigKey],[TestChest])
+TestRoom.room_def("This is a room!",{'North':NextRoom},[BigKey],[TestChest],"")
+NextRoom.room_def("This is another room!",{'South':TestRoom},[],[],"Are you reading this Em?")
 TestRoom.read_room()
 TestRoom.take_words()
