@@ -140,7 +140,7 @@ class Room:
             for x in player_in:
                 unclean_input.append(x.lower())
             for word in unclean_input:
-                if word not in ["the","to","at","in"]:
+                if word not in ["the","to","at","in","on"]:
                     words.append(word)
             verb = words[0]
             del(words[0])
