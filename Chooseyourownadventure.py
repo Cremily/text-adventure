@@ -245,3 +245,4 @@ TestRoom.room_def("This is a room!",{'North':NextRoom},[BigKey],[TestChest],"")
 NextRoom.room_def("This is another room!",{'South':TestRoom},[],[],"Are you reading this Em?")
 TestRoom.read_room()
 TestRoom.take_words()
+#this is another test
