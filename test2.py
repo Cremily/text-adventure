@@ -4,16 +4,16 @@ results_list = []
 winners = []
 
 loop = 0
-for x in range(0,10000):
+for x in range(0,100):
     test_list.append([x,0,0])
 while len(test_list) > 1:
     indicies = []
-    loop += 1
     players_left = len(test_list) - 1
     player1 = randint(0,players_left)
     player2 = randint(0,players_left)
     if player1 == player2:
         continue
+    loop += 1
     test_list[player1][1] += 1
     test_list[player2][2] += 1
     try:
@@ -37,5 +37,6 @@ else:
 for index,winner in enumerate(results_list):
     if winner[2]< 3:
         winners.append(winner)
-        del results_list[index]
+        del results_list[index] 
+print(results_list)
 print(winners)
