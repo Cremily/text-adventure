@@ -11,11 +11,11 @@ def read_inventory():
     inv_string = "You have the "
     for count,key in enumerate(PLAYER_INV):
         if len(PLAYER_INV) == 1:
-            inv_string += PLAYER_INV[key][0] + "."
+            inv_string += key + "."
         elif count <(len(PLAYER_INV)-1):
-            inv_string += PLAYER_INV[key][0] + ", "
+            inv_string += key + ", "
         else:
-            inv_string += "and the " + PLAYER_INV[key][0] + "."
+            inv_string += "and the " + key + "."
     print(inv_string)
     return True
 def remove_item(name):
@@ -84,7 +84,7 @@ class Room:
                 print(item.description)
                 return
         for item in PLAYER_INV:
-            if obj == item.name.lower():
+            if obj == PLAYER_INV[item].name.lower():
                 print(item.description)
                 return
         for inter in self.interact:
@@ -100,18 +100,21 @@ class Room:
             print("What are you looking at? There's no %s!" % (obj))
             return False
     def take_item(self,item):
-        if item in self.item:
-            PLAYER_INV.update({item:self.item[item]})
-            print("You take the %s." % (self.item[item][0]))
-            del self.item[item]
-            return True
+        for obj in self.item:
+            print("TEST")
+            if obj.name.lower() == item:
+                PLAYER_INV.update({obj.name:obj})
+                print("You take the %s." % obj.name)
+                return True
         else:
             print("There's no %s in this room!" % (item))
             return False
     def change_room(self,direction):
-        if direction in self.direc:
-            self.direc[direction][1].read_room()
-            return self.direc[direction][1]
+        for room in self.direc:
+            print(room.lower(),direction)
+            if room.lower() == direction:
+                self.direc[room].read_room()
+                return self.direc[room]
         else:
             print("You can't go %s! Try a direction in this room!" % direction)
             return self
@@ -243,6 +246,7 @@ TestRoom = Room("Testing Room")
 NextRoom = Room("Testing Room 2")
 TestRoom.room_def("This is a room!",{'North':NextRoom},[BigKey],[TestChest],"")
 NextRoom.room_def("This is another room!",{'South':TestRoom},[],[],"Are you reading this Em?")
+print(TestRoom.item[0].name)
 TestRoom.read_room()
 TestRoom.take_words()
 #what does this sdo?#
