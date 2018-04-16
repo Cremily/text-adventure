@@ -57,18 +57,18 @@ class Room:
             elif count < (len(self.item)-1):
                 item_string += key.name + ", "
             else:
-                item_string += "and a " + key.name + "."
+                item_string += "and an " + key.name + "."
 
         inter_string = "You can see a "
         for count,key in enumerate(self.interact):
             if len(self.interact) == 1:
                 inter_string += key.name + "."
-            elif count <(len(self.item)-2):
+            elif count <(len(self.interact)-2):
                 inter_string += key.name + ", a "
-            elif count < (len(self.item)-1):
-                item_string += key.name + ", "
+            elif count < (len(self.interact)-1):
+                inter_string += key.name + ", "
             else:
-                item_string += "and a " + key.name + "."
+                inter_string += "and an " + key.name + "."
 
         print(Fore.RED + self.name + Style.RESET_ALL)
         print(self.desc)
@@ -101,30 +101,37 @@ class Room:
             return False
     def take_item(self,item):
         for obj in self.item:
-            print("TEST")
-            if obj.name.lower() == item:
+            if obj.name.lower() == item.lower():
                 PLAYER_INV.update({obj.name:obj})
                 print("You take the %s." % obj.name)
+                self.delete_item(obj)
                 return True
         else:
             print("There's no %s in this room!" % (item))
             return False
     def change_room(self,direction):
         for room in self.direc:
-            print(room.lower(),direction)
             if room.lower() == direction:
+                if isinstance(self.direc[room],EndRoom):
+                    self.end_game()
+                    return
                 self.direc[room].read_room()
                 return self.direc[room]
         else:
             print("You can't go %s! Try a direction in this room!" % direction)
             return self
     def delete_item(self,del_item):
-        if del_item.name in self.item:
+        if del_item in self.item:
             new_item_list = []
             for item in self.item:
-                if item != del_item.name:
+                if item != del_item:
                     new_item_list.append(item)
             self.item = new_item_list 
+            return
+        try:
+            del(PLAYER_INV[del_item.name])
+        except Exception as e:
+            print(del_item.name,e)
     def delete_interact(self,del_inter):
         if del_inter.name in self.interact:
             new_inter_list = []
@@ -143,7 +150,7 @@ class Room:
             for x in player_in:
                 unclean_input.append(x.lower())
             for word in unclean_input:
-                if word not in ["the","to","at","in","on"]:
+                if word not in ["the","to","at","in"]:
                     words.append(word)
             verb = words[0]
             del(words[0])
@@ -183,6 +190,7 @@ class Room:
                     test_phrase += x
                 if test_phrase == phrase:
                     nphrase = phrase.split(" with ")
+                print(nphrase)
                 self.use_item(nphrase[0],nphrase[1])
         else: 
             print("You are amazing! Well Done!")                          
@@ -194,25 +202,32 @@ class Room:
         inter_obj = ""
         item_obj = ""
         for inter in self.interact:
-            print(inter.name.lower(),second)
             if inter.name.lower() == second:
                 inter_obj = inter
         if inter_obj == "":
             print("I don't see a %s in this room!" % (second))
             return
         for item in PLAYER_INV:
-            if item.name.lower() == first:
-                item_obj = item
+            if PLAYER_INV[item].name.lower() == first:
+                item_obj = PLAYER_INV[item]
         for item in self.item:
-            print(item.name.lower(),first)
             if item.name.lower() == first:
                 item_obj = item
         if item_obj == "":
             print("I don't see a %s to use!" % (first))
             return
+        print(inter_obj,item_obj)
         if isinstance(inter_obj,Chest):
             if isinstance(item_obj,Key):
                 inter_obj.unlock_chest(self,item_obj)     
+        elif isinstance(inter_obj,Door):
+            if isinstance(item_obj,Key):
+                inter_obj.unlock_door(self,item_obj)
+class EndRoom(Room):
+    def __init__(self,name):
+        Room.__init__(self,name)
+    def room_def(self,look):
+        self.look = look
 class Item:
     def __init__(self,name,description):
         self.name = name
@@ -230,23 +245,45 @@ class Chest(Item):
             for unlock_keys in self.key:
                 if key.name == unlock_keys.name:
                     for item in self.content:
-                        print(item.name)
                         room.add_item(item)
                     print(self.string)
                     room.delete_item(key)
                     remove_item(key)
                     room.delete_interact(self)
-                else:
+                    break
+            else:
                     print("That doesn't unlock %s!" % (self.name))
+class Door(Item):
+    def __init__(self,name,description,keys,directions,unlock_str):
+        Item.__init__(self,name,description)
+        self.key = keys
+        self.direction = directions
+        self.string = unlock_str
+    def unlock_door(self,room,key):
+        for unlock_keys in self.key:
+            if key.name.lower() == unlock_keys.name.lower():
+                for direc in self.direction:
+                    room.add_direc({direc:self.direction[direc]})
+                print(self.string)
+                room.delete_item(key)
+                remove_item(key)
+                room.delete_interact(self)
+                break
+        else:
+            print("That doesn't unlock the %s!" % (self.name))
+
+
+
 SmallKey = Key("Useless key","Opens nothing.")
 BigKey = Key("Stone Key","Opens the big chest.")
-AnItem = Item("Test Item","Comes from the test chest!")          
-TestChest = Chest("Chest","This is a test",[BigKey],[AnItem],"The chest bursts open, revealing a %s" % (AnItem.name))
+IronKey = Key("Iron Key","Comes from the test chest!")
+TestChest = Chest("Chest","This is a test",[BigKey],[IronKey],"The chest bursts open, revealing a %s" % (IronKey.name))
 TestRoom = Room("Testing Room")
 NextRoom = Room("Testing Room 2")
-TestRoom.room_def("This is a room!",{'North':NextRoom},[BigKey],[TestChest],"")
-NextRoom.room_def("This is another room!",{'South':TestRoom},[],[],"Are you reading this Em?")
-print(TestRoom.item[0].name)
+Finish = EndRoom("Ending Room")
+BigDoor = Door("Iron Door","Big and Iron.",[IronKey],{"East":Finish},"The door unlocks, letting you leave the cave!")
+TestRoom.room_def("This is a room!",{'North':NextRoom},[BigKey],[TestChest,BigDoor],"Where you woke up.")
+NextRoom.room_def("This is another room!",{'South':TestRoom},[BigKey],[],"Another cave.")
+Finish.room_def("The outside!")
 TestRoom.read_room()
 TestRoom.take_words()
-#what does this sdo?#
