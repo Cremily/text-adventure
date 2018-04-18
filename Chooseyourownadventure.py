@@ -35,7 +35,7 @@ class Room:
         self.item.append(item_pair)
     def add_direc(self,direc_pair):
         self.direc.update(direc_pair)
-    def add_interacts(self,inter_pair):
+    def add_interact(self,inter_pair):
         self.interact.update(inter_pair)
     def read_room(self):
 
@@ -139,6 +139,31 @@ class Room:
                 if interact != del_inter.name:
                     new_inter_list.append(interact)
             self.interact = new_inter_list
+    def use_item(self,first,second):
+        inter_obj = ""
+        item_obj = ""
+        for inter in self.interact:
+            if inter.name.lower() == second:
+                inter_obj = inter
+        if inter_obj == "":
+            print("I don't see a %s in this room!" % (second))
+            return
+        for item in PLAYER_INV:
+            if PLAYER_INV[item].name.lower() == first:
+                item_obj = PLAYER_INV[item]
+        for item in self.item:
+            if item.name.lower() == first:
+                item_obj = item
+        if item_obj == "":
+            print("I don't see a %s to use!" % (first))
+            return
+        print(inter_obj,item_obj)
+        if isinstance(inter_obj,Chest):
+            if isinstance(item_obj,Key):
+                inter_obj.unlock_chest(self,item_obj)     
+        elif isinstance(inter_obj,Door):
+            if isinstance(item_obj,Key):
+                inter_obj.unlock_door(self,item_obj)
     def take_words(self):
         while GAME_ON == True:
             player_in = input("What would you like to do? ")
@@ -174,6 +199,7 @@ class Room:
                     continue
                 if verb == "inventory" or verb == "inv":
                     read_inventory()
+                    continue
             if verb == "go" or verb == "move":
                 self = self.change_room(phrase)
             if verb == "take" or verb == "grab":
@@ -191,38 +217,17 @@ class Room:
                 if test_phrase == phrase:
                     nphrase = phrase.split(" with ")
                 print(nphrase)
-                self.use_item(nphrase[0],nphrase[1])
+                if len(nphrase) == 1:
+                    self.use_inter(nphrase)
+                else: 
+                    self.use_item(nphrase[0],nphrase[1])
         else: 
             print("You are amazing! Well Done!")                          
     def end_game(self):
         global GAME_ON
         GAME_ON = False
         return
-    def use_item(self,first,second):
-        inter_obj = ""
-        item_obj = ""
-        for inter in self.interact:
-            if inter.name.lower() == second:
-                inter_obj = inter
-        if inter_obj == "":
-            print("I don't see a %s in this room!" % (second))
-            return
-        for item in PLAYER_INV:
-            if PLAYER_INV[item].name.lower() == first:
-                item_obj = PLAYER_INV[item]
-        for item in self.item:
-            if item.name.lower() == first:
-                item_obj = item
-        if item_obj == "":
-            print("I don't see a %s to use!" % (first))
-            return
-        print(inter_obj,item_obj)
-        if isinstance(inter_obj,Chest):
-            if isinstance(item_obj,Key):
-                inter_obj.unlock_chest(self,item_obj)     
-        elif isinstance(inter_obj,Door):
-            if isinstance(item_obj,Key):
-                inter_obj.unlock_door(self,item_obj)
+    
 class EndRoom(Room):
     def __init__(self,name):
         Room.__init__(self,name)
