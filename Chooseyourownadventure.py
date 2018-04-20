@@ -227,7 +227,6 @@ class Room:
         global GAME_ON
         GAME_ON = False
         return
-    
 class EndRoom(Room):
     def __init__(self,name):
         Room.__init__(self,name)
