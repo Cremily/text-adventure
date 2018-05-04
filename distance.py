@@ -77,8 +77,37 @@ def path_picker(agent):
         return(sec_node_list[0])
     else:
         return(gateway_chosen[0])
+def gateway_to_agent(gateway,agent):
+    global nodes
+    distance_list = [10000,-1]
+    node_list = []
+    for base_node in nodes[gateway]:
+        dist = 1
+        if base_node == agent:
+            return(dist,base_node)
+        dist += 1
+        connectors = [base_node]
+        new_list = []
+        while dist < len(nodes):
+            for connector in connectors:
+                for node in nodes[connector]:
+                    new_list.append(node)
+                    if node == agent:
+                        node_list.append([dist,base_node])
+                        if dist < distance_list[0]:
+                            distance_list = [dist,base_node]
 
-            
+            dist += 1
+            filter_list = []
+            for connector in new_list:
+                if connector not in connectors:
+                    filter_list.append(connector)
+            connectors = filter_list
+            new_list = []
+                    
+
+        
+        
 
 
 dist_func()
@@ -86,11 +115,14 @@ print(find_path_to_gateway(1,4))
 result = path_picker(agent)
 cut_link(result[0],result[1])
 print(ans)
+gateway_to_agent(4,agent)
+gateway_to_agent(5,agent)
 agent = 3
 result = path_picker(agent)
 cut_link(result[0],result[1])
 print(ans)
 agent = 1
+gateway_to_agent(5,agent)
 result = path_picker(agent)
 cut_link(result[0],result[1])
 print
