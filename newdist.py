@@ -61,20 +61,16 @@ while True:
     if len(gateway_dist) == 0:
         print('OOPSIE DOODLES THE LIST IS EMPTY!')
     gateway_dist.sort()
-    #finds gateways with minimal distance
-    lowest_value = gateway_dist[0][0]
-    dist_list = []
-    for gateway in gateway_dist:
-        if gateway[0] < lowest_value:
-            lowest_value = gateway[0]
-            dist_list = gateway
-        elif gateway[0] == lowest_value:
-            dist_list.append(gateway)
-    gateway_dist = dist_list
+    
     #finishes if only one candidate is avaliable
     if len(gateway_dist) == 1:
         cut_link(gateway_dist[0][1],gateway_dist[0][2])
         continue
+    #finishes if gateway with dist 1
+    for gateway in gateway_dist:
+        if gateway[0] == 0:
+            cut_link(gateway[1],gateway[2])
+            continue
     # finds nodes with max gateways
     value_dict = {}
     for node in range(len(nodes)):
@@ -82,17 +78,14 @@ while True:
     for gateway in gateway_dist:
         for node in nodes[gateway[2]]:
             value_dict[node] += 1
-    finish_dict = {}
-    top_value = 0
+    final_nodes = []
     for value in value_dict:
-        if value_dict[value] > top_value:
-            top_value = value_dict[value]
-            finish_dict = {value:value_dict[value]}
-        elif value_dict[value] == top_value:
-            finish_dict.update({value:value_dict[value]})
-    final_node = []
-    for index,pair in enumerate(finish_dict):
-        final_node.append(pair)
+        if value_dict[value] == 2:
+            final_nodes.append(value)
+    dist_final = []
+    for node in final_nodes:
+        dist_final.update([])
+    
     # finds gateways with max nodes
     gateway_connectors = {}
     for gateway in gateway_dist:
@@ -108,11 +101,7 @@ while True:
         elif gateway_connectors[gateway] == max_value:
             final_connector.append(gateway)
     #checks if either nodes/connectors have one candidate
-    if len(final_node) == 1:
-        for gateway in gateway_dist:
-            if gateway[1] == final_node[0]:
-                final_gateway = gateway
-    elif len(final_connector) == 1:
+    if len(final_connector) == 1:
         for gateway in gateway_dist:
             if gateway[2] == final_connector[0]:
                 final_gateway = gateway
