@@ -114,7 +114,7 @@ class Room:
             if room.lower() == direction:
                 if isinstance(self.direc[room],EndRoom):
                     self.end_game()
-                    return
+                    return True
                 self.direc[room].read_room()
                 return self.direc[room]
         else:
