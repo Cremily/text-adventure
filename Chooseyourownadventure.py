@@ -114,7 +114,7 @@ class Room:
             if room.lower() == direction:
                 if isinstance(self.direc[room],EndRoom):
                     self.end_game()
-                    return
+                    return True
                 self.direc[room].read_room()
                 return self.direc[room]
         else:
@@ -289,6 +289,6 @@ BigDoor = Door("Iron Door","Big and Iron.",[IronKey],{"East":Finish},"The door u
 TestRoom.room_def("This is a room!",{'North':NextRoom},[BigKey],[TestChest,BigDoor],"Where you woke up.")
 NextRoom.room_def("This is another room!",{'South':TestRoom},[BigKey],[],"Another cave.")
 Finish.room_def("The outside!")
-TestRoom.read_room()
-TestRoom.take_words()
+#TestRoom.read_room()
+#TestRoom.take_words()
 #this is another test
